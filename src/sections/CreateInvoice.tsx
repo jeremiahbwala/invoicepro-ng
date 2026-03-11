@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { ArrowLeft, Plus, Trash2, Save, X, UserPlus } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Save, UserPlus } from 'lucide-react'; // removed 'X'
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,7 +12,7 @@ import { toast } from 'sonner';
 
 declare global {
   interface Window {
-    gtag: (...args: any[]) => void;
+    gtag: (...args: unknown[]) => void;
   }
 }
 
@@ -25,18 +25,11 @@ interface CreateInvoiceProps {
 }
 
 export function CreateInvoice({ customers, onSave, onAddCustomer, onCancel }: CreateInvoiceProps) {
-  const [selectedCustomerId, setSelectedCustomerId] = useState<string>('');
+  const [selectedCustomerId, setSelectedCustomerId] = useState('');
   const [items, setItems] = useState<InvoiceItem[]>([
     { id: crypto.randomUUID(), description: '', quantity: 1, unitPrice: 0, total: 0 }
   ]);
   const [notes, setNotes] = useState('');
-  const [paymentTerms, setPaymentTerms] = useState('Payment due within 14 days');
-  const [dueDate, setDueDate] = useState(() => {
-    const date = new Date();
-    date.setDate(date.getDate() + 14);
-    return date.toISOString().split('T')[0];
-  });
-  const [taxRate, setTaxRate] = useState(0);
 
   const [newCustomerName, setNewCustomerName] = useState('');
   const [newCustomerPhone, setNewCustomerPhone] = useState('');
@@ -44,21 +37,15 @@ export function CreateInvoice({ customers, onSave, onAddCustomer, onCancel }: Cr
   const [newCustomerAddress, setNewCustomerAddress] = useState('');
   const [isAddCustomerOpen, setIsAddCustomerOpen] = useState(false);
 
-  const selectedCustomer = useMemo(() => {
-    return customers.find(c => c.id === selectedCustomerId);
-  }, [customers, selectedCustomerId]);
+  const selectedCustomer = useMemo(
+    () => customers.find(c => c.id === selectedCustomerId),
+    [customers, selectedCustomerId]
+  );
 
-  const subtotal = useMemo(() => {
-    return items.reduce((sum, item) => sum + item.total, 0);
-  }, [items]);
-
-  const tax = useMemo(() => {
-    return subtotal * (taxRate / 100);
-  }, [subtotal, taxRate]);
-
-  const total = useMemo(() => {
-    return subtotal + tax;
-  }, [subtotal, tax]);
+  const subtotal = useMemo(() => items.reduce((sum, item) => sum + item.total, 0), [items]);
+  const taxRate = 0; // kept as constant
+  const tax = subtotal * (taxRate / 100);
+  const total = subtotal + tax;
 
   const generateInvoiceNumber = () => {
     const year = new Date().getFullYear();
@@ -66,6 +53,7 @@ export function CreateInvoice({ customers, onSave, onAddCustomer, onCancel }: Cr
     return `INV-${year}-${random}`;
   };
 
+  // Handlers
   const handleAddItem = () => {
     setItems(prev => [
       ...prev,
@@ -74,23 +62,18 @@ export function CreateInvoice({ customers, onSave, onAddCustomer, onCancel }: Cr
   };
 
   const handleRemoveItem = (id: string) => {
-    if (items.length > 1) {
-      setItems(prev => prev.filter(item => item.id !== id));
-    }
+    if (items.length > 1) setItems(prev => prev.filter(item => item.id !== id));
   };
 
   const handleItemChange = (id: string, field: keyof InvoiceItem, value: string | number) => {
-    setItems(prev => prev.map(item => {
-      if (item.id !== id) return item;
-
-      const updated = { ...item, [field]: value };
-
-      if (field === 'quantity' || field === 'unitPrice') {
-        updated.total = updated.quantity * updated.unitPrice;
-      }
-
-      return updated;
-    }));
+    setItems(prev =>
+      prev.map(item => {
+        if (item.id !== id) return item;
+        const updated = { ...item, [field]: value };
+        if (field === 'quantity' || field === 'unitPrice') updated.total = updated.quantity * updated.unitPrice;
+        return updated;
+      })
+    );
   };
 
   const handleAddCustomer = () => {
@@ -98,7 +81,6 @@ export function CreateInvoice({ customers, onSave, onAddCustomer, onCancel }: Cr
       toast.error('Customer name is required');
       return;
     }
-
     const newCustomer: Customer = {
       id: crypto.randomUUID(),
       name: newCustomerName,
@@ -107,7 +89,6 @@ export function CreateInvoice({ customers, onSave, onAddCustomer, onCancel }: Cr
       address: newCustomerAddress,
       createdAt: new Date().toISOString(),
     };
-
     onAddCustomer(newCustomer);
     setSelectedCustomerId(newCustomer.id);
     setIsAddCustomerOpen(false);
@@ -146,38 +127,26 @@ export function CreateInvoice({ customers, onSave, onAddCustomer, onCancel }: Cr
       taxRate,
       total,
       notes,
-      paymentTerms,
+      paymentTerms: 'Payment due within 14 days',
       issueDate: new Date().toISOString(),
-      dueDate,
+      dueDate: new Date().toISOString(),
       status: 'unpaid',
       createdAt: new Date().toISOString(),
     };
 
     onSave(invoice);
 
-    // Google Analytics Event
-    if (window.gtag) {
-      window.gtag('event', 'invoice_created', {
-        value: total,
-        currency: 'NGN'
-      });
-    }
+    if (window.gtag) window.gtag('event', 'invoice_created', { value: total, currency: 'NGN' });
 
     toast.success('Invoice created successfully!');
     onCancel();
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-NG', {
-      style: 'currency',
-      currency: 'NGN',
-      minimumFractionDigits: 0,
-    }).format(amount);
-  };
+  const formatCurrency = (amount: number) =>
+    new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', minimumFractionDigits: 0 }).format(amount);
 
   return (
-    <div className="p-4 max-w-5xl mx-auto space-y-4">
-      {/* Header */}
+    <div className="p-4 max-w-5xl mx-auto space-y-6">
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon" onClick={onCancel}>
           <ArrowLeft className="w-5 h-5" />
@@ -188,7 +157,75 @@ export function CreateInvoice({ customers, onSave, onAddCustomer, onCancel }: Cr
         </div>
       </div>
 
-      {/* UI continues exactly the same as your original */}
+      {/* Customer Selection */}
+      <div className="flex gap-4 items-center">
+        <Select value={selectedCustomerId} onValueChange={setSelectedCustomerId}>
+          <SelectTrigger className="w-64">
+            <SelectValue placeholder="Select Customer" />
+          </SelectTrigger>
+          <SelectContent>
+            {customers.map(c => (
+              <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Dialog open={isAddCustomerOpen} onOpenChange={setIsAddCustomerOpen}>
+          <DialogTrigger asChild>
+            <Button variant="outline">
+              <UserPlus className="w-4 h-4 mr-2" /> Add Customer
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader><DialogTitle>Add Customer</DialogTitle></DialogHeader>
+            <div className="space-y-3">
+              <Input placeholder="Name" value={newCustomerName} onChange={e => setNewCustomerName(e.target.value)} />
+              <Input placeholder="Phone" value={newCustomerPhone} onChange={e => setNewCustomerPhone(e.target.value)} />
+              <Input placeholder="Email" value={newCustomerEmail} onChange={e => setNewCustomerEmail(e.target.value)} />
+              <Textarea placeholder="Address" value={newCustomerAddress} onChange={e => setNewCustomerAddress(e.target.value)} />
+              <Button onClick={handleAddCustomer} className="mt-2">Save</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      {/* Invoice Items */}
+      <Card>
+        <CardContent>
+          {items.map(item => (
+            <div key={item.id} className="flex gap-2 items-center mb-2">
+              <Input placeholder="Description" value={item.description} onChange={e => handleItemChange(item.id, 'description', e.target.value)} />
+              <Input type="number" placeholder="Qty" value={item.quantity} onChange={e => handleItemChange(item.id, 'quantity', Number(e.target.value))} className="w-16" />
+              <Input type="number" placeholder="Unit Price" value={item.unitPrice} onChange={e => handleItemChange(item.id, 'unitPrice', Number(e.target.value))} className="w-24" />
+              <span className="w-24">{formatCurrency(item.total)}</span>
+              <Button variant="destructive" size="icon" onClick={() => handleRemoveItem(item.id)}>
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </div>
+          ))}
+          <Button variant="outline" size="sm" onClick={handleAddItem}>
+            <Plus className="w-4 h-4 mr-1" /> Add Item
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Notes */}
+      <div>
+        <Label>Notes</Label>
+        <Textarea value={notes} onChange={e => setNotes(e.target.value)} />
+      </div>
+
+      {/* Totals */}
+      <div className="flex justify-end space-x-4">
+        <div>Subtotal: {formatCurrency(subtotal)}</div>
+        <div>Tax: {formatCurrency(tax)}</div>
+        <div>Total: {formatCurrency(total)}</div>
+      </div>
+
+      {/* Save Button */}
+      <Button className="mt-4" onClick={handleSave}>
+        <Save className="w-4 h-4 mr-2" /> Save Invoice
+      </Button>
     </div>
   );
 }
