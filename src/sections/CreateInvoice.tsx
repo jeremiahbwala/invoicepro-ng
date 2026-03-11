@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { ArrowLeft, Plus, Trash2, Save, UserPlus } from 'lucide-react'; // removed 'X'
+import { ArrowLeft, Plus, Trash2, Save, UserPlus } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,9 +27,16 @@ interface CreateInvoiceProps {
 export function CreateInvoice({ customers, onSave, onAddCustomer, onCancel }: CreateInvoiceProps) {
   const [selectedCustomerId, setSelectedCustomerId] = useState('');
   const [items, setItems] = useState<InvoiceItem[]>([
-    { id: crypto.randomUUID(), description: '', quantity: 1, unitPrice: 0, total: 0 }
+    { id: crypto.randomUUID(), description: '', quantity: 1, unitPrice: 0, total: 0 },
   ]);
   const [notes, setNotes] = useState('');
+  const [taxRate, setTaxRate] = useState(0);
+  const [paymentTerms, setPaymentTerms] = useState('Payment due within 14 days');
+  const [dueDate, setDueDate] = useState(() => {
+    const date = new Date();
+    date.setDate(date.getDate() + 14);
+    return date.toISOString().split('T')[0];
+  });
 
   const [newCustomerName, setNewCustomerName] = useState('');
   const [newCustomerPhone, setNewCustomerPhone] = useState('');
@@ -43,8 +50,7 @@ export function CreateInvoice({ customers, onSave, onAddCustomer, onCancel }: Cr
   );
 
   const subtotal = useMemo(() => items.reduce((sum, item) => sum + item.total, 0), [items]);
-  const taxRate = 0; // kept as constant
-  const tax = subtotal * (taxRate / 100);
+  const tax = useMemo(() => subtotal * (taxRate / 100), [subtotal, taxRate]);
   const total = subtotal + tax;
 
   const generateInvoiceNumber = () => {
@@ -55,10 +61,7 @@ export function CreateInvoice({ customers, onSave, onAddCustomer, onCancel }: Cr
 
   // Handlers
   const handleAddItem = () => {
-    setItems(prev => [
-      ...prev,
-      { id: crypto.randomUUID(), description: '', quantity: 1, unitPrice: 0, total: 0 }
-    ]);
+    setItems(prev => [...prev, { id: crypto.randomUUID(), description: '', quantity: 1, unitPrice: 0, total: 0 }]);
   };
 
   const handleRemoveItem = (id: string) => {
@@ -127,9 +130,9 @@ export function CreateInvoice({ customers, onSave, onAddCustomer, onCancel }: Cr
       taxRate,
       total,
       notes,
-      paymentTerms: 'Payment due within 14 days',
+      paymentTerms,
       issueDate: new Date().toISOString(),
-      dueDate: new Date().toISOString(),
+      dueDate,
       status: 'unpaid',
       createdAt: new Date().toISOString(),
     };
@@ -147,6 +150,7 @@ export function CreateInvoice({ customers, onSave, onAddCustomer, onCancel }: Cr
 
   return (
     <div className="p-4 max-w-5xl mx-auto space-y-6">
+      {/* Header */}
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon" onClick={onCancel}>
           <ArrowLeft className="w-5 h-5" />
@@ -165,7 +169,9 @@ export function CreateInvoice({ customers, onSave, onAddCustomer, onCancel }: Cr
           </SelectTrigger>
           <SelectContent>
             {customers.map(c => (
-              <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+              <SelectItem key={c.id} value={c.id}>
+                {c.name}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -177,13 +183,17 @@ export function CreateInvoice({ customers, onSave, onAddCustomer, onCancel }: Cr
             </Button>
           </DialogTrigger>
           <DialogContent>
-            <DialogHeader><DialogTitle>Add Customer</DialogTitle></DialogHeader>
+            <DialogHeader>
+              <DialogTitle>Add Customer</DialogTitle>
+            </DialogHeader>
             <div className="space-y-3">
               <Input placeholder="Name" value={newCustomerName} onChange={e => setNewCustomerName(e.target.value)} />
               <Input placeholder="Phone" value={newCustomerPhone} onChange={e => setNewCustomerPhone(e.target.value)} />
               <Input placeholder="Email" value={newCustomerEmail} onChange={e => setNewCustomerEmail(e.target.value)} />
               <Textarea placeholder="Address" value={newCustomerAddress} onChange={e => setNewCustomerAddress(e.target.value)} />
-              <Button onClick={handleAddCustomer} className="mt-2">Save</Button>
+              <Button onClick={handleAddCustomer} className="mt-2">
+                Save
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
@@ -194,9 +204,25 @@ export function CreateInvoice({ customers, onSave, onAddCustomer, onCancel }: Cr
         <CardContent>
           {items.map(item => (
             <div key={item.id} className="flex gap-2 items-center mb-2">
-              <Input placeholder="Description" value={item.description} onChange={e => handleItemChange(item.id, 'description', e.target.value)} />
-              <Input type="number" placeholder="Qty" value={item.quantity} onChange={e => handleItemChange(item.id, 'quantity', Number(e.target.value))} className="w-16" />
-              <Input type="number" placeholder="Unit Price" value={item.unitPrice} onChange={e => handleItemChange(item.id, 'unitPrice', Number(e.target.value))} className="w-24" />
+              <Input
+                placeholder="Description"
+                value={item.description}
+                onChange={e => handleItemChange(item.id, 'description', e.target.value)}
+              />
+              <Input
+                type="number"
+                placeholder="Qty"
+                value={item.quantity}
+                onChange={e => handleItemChange(item.id, 'quantity', Number(e.target.value))}
+                className="w-16"
+              />
+              <Input
+                type="number"
+                placeholder="Unit Price"
+                value={item.unitPrice}
+                onChange={e => handleItemChange(item.id, 'unitPrice', Number(e.target.value))}
+                className="w-24"
+              />
               <span className="w-24">{formatCurrency(item.total)}</span>
               <Button variant="destructive" size="icon" onClick={() => handleRemoveItem(item.id)}>
                 <Trash2 className="w-4 h-4" />
@@ -209,6 +235,22 @@ export function CreateInvoice({ customers, onSave, onAddCustomer, onCancel }: Cr
         </CardContent>
       </Card>
 
+      {/* Tax, Payment Terms, Due Date */}
+      <div className="flex gap-4 items-center">
+        <div>
+          <Label>Tax %</Label>
+          <Input type="number" value={taxRate} onChange={e => setTaxRate(Number(e.target.value))} />
+        </div>
+        <div>
+          <Label>Payment Terms</Label>
+          <Input value={paymentTerms} onChange={e => setPaymentTerms(e.target.value)} />
+        </div>
+        <div>
+          <Label>Due Date</Label>
+          <Input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} />
+        </div>
+      </div>
+
       {/* Notes */}
       <div>
         <Label>Notes</Label>
@@ -216,7 +258,7 @@ export function CreateInvoice({ customers, onSave, onAddCustomer, onCancel }: Cr
       </div>
 
       {/* Totals */}
-      <div className="flex justify-end space-x-4">
+      <div className="flex justify-end space-x-4 font-semibold">
         <div>Subtotal: {formatCurrency(subtotal)}</div>
         <div>Tax: {formatCurrency(tax)}</div>
         <div>Total: {formatCurrency(total)}</div>
