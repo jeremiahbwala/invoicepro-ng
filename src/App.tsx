@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import type { View, Invoice, Customer, BusinessInfo } from '@/types';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import Home from '@/pages/Home';
+import Auth from '@/pages/Auth';
 import { Dashboard } from '@/sections/Dashboard';
 import { InvoiceList } from '@/sections/InvoiceList';
 import { CreateInvoice } from '@/sections/CreateInvoice';
@@ -11,7 +13,9 @@ import { Header } from '@/components/Header';
 import { Toaster } from '@/components/ui/sonner';
 
 function App() {
-  const [currentView, setCurrentView] = useState<View>('dashboard');
+  const [currentView, setCurrentView] = useState<View>(
+    localStorage.getItem('invoicepro_session') ? 'dashboard' : 'landing'
+  );
   const [invoices, setInvoices] = useLocalStorage<Invoice[]>('invoicepro_invoices', []);
   const [customers, setCustomers] = useLocalStorage<Customer[]>('invoicepro_customers', []);
   const [businessInfo, setBusinessInfo] = useLocalStorage<BusinessInfo>('invoicepro_business', {
@@ -49,8 +53,28 @@ function App() {
     setCustomers(prev => prev.filter(cust => cust.id !== id));
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('invoicepro_session');
+    setCurrentView('landing');
+  };
   const renderView = () => {
     switch (currentView) {
+      case 'landing':
+        return (
+          <Home
+            onGetStarted={() => setCurrentView('auth')}
+            onLogin={() => setCurrentView('auth')}
+          />
+        );
+
+      case 'auth':
+        return (
+          <Auth
+            onAuthSuccess={() => setCurrentView('dashboard')}
+            onBack={() => setCurrentView('landing')}
+          />
+        );
+
       case 'dashboard':
         return (
           <Dashboard
@@ -105,14 +129,19 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header 
-        businessName={businessInfo.name} 
-        onSettings={() => setCurrentView('settings')}
-      />
+      {currentView !== 'landing' && (
+        <Header
+          businessName={businessInfo.name}
+          onSettings={() => setCurrentView('settings')}
+          onLogout={handleLogout}
+        />
+      )}
       <main className="pb-20 md:pb-0">
         {renderView()}
       </main>
-      <BottomNav currentView={currentView} onNavigate={setCurrentView} />
+      {currentView !== 'landing' && (
+        <BottomNav currentView={currentView} onNavigate={setCurrentView} />
+      )}
       <Toaster position="top-center" />
     </div>
   );

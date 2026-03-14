@@ -49,7 +49,8 @@ export interface BusinessInfo {
   logo?: string;
 }
 
-export type View = 'dashboard' | 'invoices' | 'create-invoice' | 'customers' | 'settings';
+
+export type View = 'landing' | 'auth' | 'dashboard' | 'invoices' | 'create-invoice' | 'customers' | 'settings';
 
 export interface DashboardStats {
   totalInvoices: number;

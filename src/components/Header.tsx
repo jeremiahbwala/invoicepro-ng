@@ -1,12 +1,13 @@
-import { Settings, Receipt } from 'lucide-react';
+import { Settings, Receipt, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface HeaderProps {
   businessName: string;
   onSettings: () => void;
+  onLogout: () => void;
 }
 
-export function Header({ businessName, onSettings }: HeaderProps) {
+export function Header({ businessName, onSettings, onLogout }: HeaderProps) {
   return (
     <header className="sticky top-0 z-50 bg-white border-b shadow-sm">
       <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
@@ -27,6 +28,15 @@ export function Header({ businessName, onSettings }: HeaderProps) {
         >
           <Settings className="w-5 h-5" />
         </Button>
+        <Button
+            variant="ghost"
+            size="icon"
+            onClick={onLogout}
+            className="text-gray-600 hover:text-red-500"
+            title="Logout"
+          >
+            <LogOut className="w-5 h-5" />
+          </Button>
       </div>
     </header>
   );
