@@ -36,7 +36,7 @@ export default function Home({ onGetStarted }: HomeProps) {
         </div>
         <div className="flex-1 min-w-[300px]">
           <img
-            src="dist/assets/hero-image.png"
+            src="src/assets/hero-image.png"
             alt="InvoicePro NG Dashboard"
             className="w-full rounded-2xl shadow-xl border border-slate-200"
           />
@@ -86,7 +86,7 @@ export default function Home({ onGetStarted }: HomeProps) {
         <h2 className="text-3xl font-bold">See InvoicePro in Action</h2>
         <div className="mt-12">
           <img
-            src="dist/assets/invoice-action.png"
+            src="src/assets/invoice-action.png"
             alt="InvoicePro NG Product Preview"
             className="w-full max-w-5xl mx-auto rounded-2xl shadow-2xl border border-slate-200"
           />
