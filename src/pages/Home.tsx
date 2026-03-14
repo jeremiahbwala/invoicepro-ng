@@ -1,5 +1,6 @@
 interface HomeProps {
   onGetStarted: () => void;
+  onLogin: () => void;
 }
 
 export default function Home({ onGetStarted }: HomeProps) {

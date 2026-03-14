@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import type { View } from '@/types';
 
 interface AuthProps {
   onAuthSuccess: () => void;
