@@ -1,3 +1,7 @@
+import heroImage from "../assets/hero-image.png";
+import invoiceAction from "../assets/invoice-action.png";
+
+
 interface HomeProps {
   onGetStarted: () => void;
   onLogin: () => void;
@@ -36,7 +40,7 @@ export default function Home({ onGetStarted }: HomeProps) {
         </div>
         <div className="flex-1 min-w-[300px]">
           <img
-            src="src/assets/hero-image.png"
+            src={heroImage}
             alt="InvoicePro NG Dashboard"
             className="w-full rounded-2xl shadow-xl border border-slate-200"
           />
@@ -86,7 +90,7 @@ export default function Home({ onGetStarted }: HomeProps) {
         <h2 className="text-3xl font-bold">See InvoicePro in Action</h2>
         <div className="mt-12">
           <img
-            src="src/assets/invoice-action.png"
+            src={invoiceAction}
             alt="InvoicePro NG Product Preview"
             className="w-full max-w-5xl mx-auto rounded-2xl shadow-2xl border border-slate-200"
           />
