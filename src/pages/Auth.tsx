@@ -6,7 +6,7 @@ interface AuthProps {
   initialMode?: 'signin' | 'signup';
 }
 
-export default function Auth({ onAuthSuccess, onBack, initialMode = 'signin' }: AuthProps) {
+export default function Auth({ onAuthSuccess, initialMode = 'signin' }: AuthProps) {
   const [mode, setMode] = useState<'signin' | 'signup'>(initialMode);
   const [form, setForm] = useState({ fullName: '', businessName: '', email: '', password: '' });
   const [error, setError] = useState('');
@@ -72,12 +72,6 @@ export default function Auth({ onAuthSuccess, onBack, initialMode = 'signin' }: 
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
-
-      {/* Top bar */}
-      <nav className="bg-white border-b px-6 md:px-[6%] py-4 flex items-center justify-between">
-        <button onClick={onBack} className="text-emerald-600 font-bold text-xl">InvoicePro NG</button>
-        <button onClick={onBack} className="text-sm text-slate-500 hover:text-slate-700">← Back to Home</button>
-      </nav>
 
       {/* Card */}
       <div className="flex-1 flex items-center justify-center px-4 py-12">

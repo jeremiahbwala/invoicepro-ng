@@ -1,19 +1,29 @@
 import heroImage from "../assets/hero-image.png";
 import invoiceAction from "../assets/invoice-action.png";
+import { Receipt } from 'lucide-react';
 
 
 interface HomeProps {
+  businessName?: string;
   onGetStarted: () => void;
   onLogin: () => void;
 }
 
-export default function Home({ onGetStarted }: HomeProps) {
+export default function Home({ businessName, onGetStarted }: HomeProps) {
   return (
     <div className="min-h-screen bg-white text-slate-900">
 
       {/* NAVBAR */}
       <nav className="sticky top-0 z-50 bg-white border-b flex justify-between items-center px-6 md:px-[6%] py-4">
-        <div className="text-emerald-500 font-bold text-xl">InvoicePro NG</div>
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center">
+            <Receipt className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h1 className="font-bold text-emerald-800 text-sm leading-tight">InvoicePro NG</h1>
+            <p className="text-xs text-gray-500 truncate max-w-[120px]">{businessName}</p>
+          </div>
+        </div>
         <div className="hidden md:flex items-center gap-7">
           <a href="#features" className="font-medium text-slate-700 hover:text-emerald-600">Features</a>
           <a href="#pricing" className="font-medium text-slate-700 hover:text-emerald-600">Pricing</a>
