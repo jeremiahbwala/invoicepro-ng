@@ -1,6 +1,7 @@
 import heroImage from "../assets/hero-image.png";
 import invoiceAction from "../assets/invoice-action.png";
 import { Receipt } from 'lucide-react';
+import { FileText, Users, LayoutDashboard, Download, Smartphone, ShieldCheck } from 'lucide-react';
 
 
 interface HomeProps {
@@ -57,41 +58,75 @@ export default function Home({ businessName, onGetStarted }: HomeProps) {
         </div>
       </section>
 
-      {/* FEATURES */}
-      <section id="features" className="px-6 md:px-[6%] py-20 text-center">
-        <h2 className="text-3xl font-bold mb-12">Everything You Need for Invoicing</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+      {/* HOW IT WORKS */}
+      <section className="px-6 md:px-[6%] py-20 bg-slate-50 text-center">
+        <h2 className="text-3xl font-bold">How InvoicePro Works</h2>
+        <p className="text-slate-500 mt-3 text-lg">Get up and running in minutes</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-6 mt-12">
           {[
-            { title: "Create Invoices", desc: "Generate professional invoices instantly." },
-            { title: "Track Payments", desc: "Monitor paid and pending invoices." },
-            { title: "Manage Clients", desc: "Store and organize client information." },
-            { title: "Download PDF", desc: "Export clean professional invoices." },
-          ].map((f) => (
-            <div key={f.title} className="p-7 border rounded-xl bg-white hover:shadow-lg transition-shadow">
-              <h3 className="font-semibold text-lg mb-2">{f.title}</h3>
-              <p className="text-slate-500 text-sm">{f.desc}</p>
+            { n: 1, title: "Create Account", desc: "Sign up and access your dashboard instantly." },
+            { n: 2, title: "Add Clients", desc: "Store and organize client contact information." },
+            { n: 3, title: "Create Invoice", desc: "Add services, pricing and generate professional invoices." },
+            { n: 4, title: "Download PDF", desc: "Export clean, professional invoices as PDF." },
+            { n: 5, title: "Send & Track", desc: "Share invoices with clients and monitor payment status." },
+          ].map((s) => (
+          <div key={s.n} className="p-6 bg-white border rounded-xl hover:shadow-lg transition-shadow">
+            <div className="w-10 h-10 bg-emerald-500 text-white rounded-full flex items-center justify-center font-bold mx-auto mb-4">{s.n}</div>
+              <h4 className="font-semibold mb-1">{s.title}</h4>
+              <p className="text-slate-500 text-sm">{s.desc}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* HOW IT WORKS */}
-      <section className="px-6 md:px-[6%] py-20 bg-slate-50 text-center">
-        <h2 className="text-3xl font-bold">How InvoicePro Works</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-6 mt-12">
+      {/* WHAT YOU CAN DO */}
+      <section id="features" className="px-6 md:px-[6%] py-20 text-center">
+        <h2 className="text-3xl font-bold">What You Can Do with InvoicePro</h2>
+        <p className="text-slate-500 mt-3 text-lg">Everything built for Nigerian freelancers and businesses</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-12">
           {[
-            { n: 1, title: "Create Account", desc: "Sign up and access your dashboard." },
-            { n: 2, title: "Add Clients", desc: "Store client contact information." },
-            { n: 3, title: "Create Invoice", desc: "Add services and pricing." },
-            { n: 4, title: "Send Invoice", desc: "Share invoice with clients." },
-            { n: 5, title: "Track Payments", desc: "Monitor paid and pending invoices." },
-          ].map((s) => (
-            <div key={s.n} className="p-6 bg-white border rounded-xl">
-              <div className="w-10 h-10 bg-emerald-500 text-white rounded-full flex items-center justify-center font-bold mx-auto mb-4">{s.n}</div>
-              <h4 className="font-semibold mb-1">{s.title}</h4>
-              <p className="text-slate-500 text-sm">{s.desc}</p>
+            {
+              icon: FileText,
+              title: "Professional Invoices",
+              desc: "Create branded invoices with your business name, itemized services and totals in seconds.",
+            },
+            {
+              icon: Users,
+              title: "Client Management",
+              desc: "Store client profiles, contact details and view their full invoice history in one place.",
+            },
+            {
+              icon: LayoutDashboard,
+              title: "Payment Dashboard",
+              desc: "Get a clear overview of paid, pending and overdue invoices at a glance.",
+            },
+            {
+              icon: Download,
+              title: "PDF Export",
+              desc: "Download and share polished PDF invoices your clients will trust.",
+            },
+            {
+              icon: Smartphone,
+              title: "Works on Any Device",
+              desc: "Fully responsive — use InvoicePro on your phone, tablet or desktop.",
+            },
+            {
+              icon: ShieldCheck,
+              title: "Your Data, Your Device",
+              desc: "All data is stored locally on your device. No cloud, no subscription required.",
+            },
+          ].map((f) => {
+            const Icon = f.icon;
+          return (
+            <div key={f.title} className="p-7 border rounded-xl bg-white hover:shadow-lg transition-shadow text-left">
+              <div className="w-11 h-11 bg-emerald-50 rounded-xl flex items-center justify-center mb-4">
+                <Icon className="w-6 h-6 text-emerald-600" />
+              </div>
+              <h3 className="font-semibold text-lg mb-2">{f.title}</h3>
+              <p className="text-slate-500 text-sm">{f.desc}</p>
             </div>
-          ))}
+          );
+        })}
         </div>
       </section>
 
