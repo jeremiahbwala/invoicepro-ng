@@ -1,4 +1,5 @@
 import { Home, FileText, Users, PlusCircle } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
 import type { View } from '@/types';
 import { cn } from '@/lib/utils';
 
@@ -14,8 +15,38 @@ const navItems = [
 ];
 
 export function BottomNav({ currentView, onNavigate }: BottomNavProps) {
+  const [visible, setVisible] = useState(true);
+  const lastScrollY = useRef(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      if (currentScrollY < 10) {
+        // Always show when near top
+        setVisible(true);
+      } else if (currentScrollY > lastScrollY.current) {
+        // Scrolling down → hide
+        setVisible(false);
+      } else {
+        // Scrolling up → show
+        setVisible(true);
+      }
+
+      lastScrollY.current = currentScrollY;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t md:hidden z-50">
+    <nav
+      className={cn(
+        'fixed bottom-0 left-0 right-0 bg-white border-t z-50 transition-transform duration-300 ease-in-out',
+        visible ? 'translate-y-0' : 'translate-y-full'
+      )}
+    >
       <div className="flex justify-around items-center h-16">
         {navItems.map((item) => {
           const Icon = item.icon;
