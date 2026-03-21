@@ -162,7 +162,7 @@ function App() {
         <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50">
           <button
             onClick={installApp}
-            className="px-6 py-3 bg-green-600 text-white rounded-lg shadow-lg hover:bg-green-700 transition font-bold"
+            className="px-4 py-2 bg-green-600 text-white rounded-md shadow-md hover:bg-green-700 transition font-bold text-sm"
           >
             Install InvoicePro NG
           </button>
