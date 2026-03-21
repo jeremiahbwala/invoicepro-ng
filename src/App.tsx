@@ -11,6 +11,7 @@ import { Settings } from '@/sections/Settings';
 import { BottomNav } from '@/components/BottomNav';
 import { Header } from '@/components/Header';
 import { Toaster } from '@/components/ui/sonner';
+import { usePWAInstall } from '@/hooks/usePWAInstall';
 
 function App() {
   const [currentView, setCurrentView] = useState<View>(
@@ -24,6 +25,8 @@ function App() {
     phone: '',
     email: '',
   });
+
+  const { isInstallable, installApp } = usePWAInstall(); // Typed PWA hook
 
   const addInvoice = (invoice: Invoice) => {
     setInvoices(prev => [invoice, ...prev]);
@@ -57,6 +60,7 @@ function App() {
     localStorage.removeItem('invoicepro_session');
     setCurrentView('landing');
   };
+
   const renderView = () => {
     switch (currentView) {
       case 'landing':
@@ -84,6 +88,7 @@ function App() {
             onViewCustomers={() => setCurrentView('customers')}
           />
         );
+
       case 'invoices':
         return (
           <InvoiceList
@@ -95,6 +100,7 @@ function App() {
             onCreateNew={() => setCurrentView('create-invoice')}
           />
         );
+
       case 'create-invoice':
         return (
           <CreateInvoice
@@ -105,6 +111,7 @@ function App() {
             onCancel={() => setCurrentView('invoices')}
           />
         );
+
       case 'customers':
         return (
           <CustomerList
@@ -115,6 +122,7 @@ function App() {
             onDelete={deleteCustomer}
           />
         );
+
       case 'settings':
         return (
           <Settings
@@ -122,13 +130,21 @@ function App() {
             onUpdate={setBusinessInfo}
           />
         );
+
       default:
-        return <Dashboard invoices={invoices} onCreateInvoice={() => setCurrentView('create-invoice')} onViewInvoices={() => setCurrentView('invoices')} onViewCustomers={() => setCurrentView('customers')} />;
+        return (
+          <Dashboard
+            invoices={invoices}
+            onCreateInvoice={() => setCurrentView('create-invoice')}
+            onViewInvoices={() => setCurrentView('invoices')}
+            onViewCustomers={() => setCurrentView('customers')}
+          />
+        );
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 relative">
       {currentView !== 'landing' && (
         <Header
           businessName={businessInfo.name}
@@ -136,12 +152,26 @@ function App() {
           onLogout={handleLogout}
         />
       )}
+
       <main className="pb-20 md:pb-0">
         {renderView()}
       </main>
+
+     {/* PWA Install Button */}
+      {isInstallable && (
+        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50">
+          <button
+            onClick={installApp}
+            className="px-6 py-3 bg-green-600 text-white rounded-lg shadow-lg hover:bg-green-700 transition font-bold"
+          >
+            Install InvoicePro NG
+          </button>
+        </div>
+      )}
       {currentView !== 'landing' && (
         <BottomNav currentView={currentView} onNavigate={setCurrentView} />
       )}
+
       <Toaster position="top-center" />
     </div>
   );
