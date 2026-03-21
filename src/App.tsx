@@ -1,163 +1,191 @@
-import { useState } from 'react';
-import type { View, Invoice, Customer, BusinessInfo } from '@/types';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
-import Home from '@/pages/Home';
-import Auth from '@/pages/Auth';
-import { Dashboard } from '@/sections/Dashboard';
-import { InvoiceList } from '@/sections/InvoiceList';
-import { CreateInvoice } from '@/sections/CreateInvoice';
-import { CustomerList } from '@/sections/CustomerList';
-import { Settings } from '@/sections/Settings';
-import { BottomNav } from '@/components/BottomNav';
-import { Header } from '@/components/Header';
-import { Toaster } from '@/components/ui/sonner';
-import { usePWAInstall } from '@/hooks/usePWAInstall';
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import type { Invoice, Customer, BusinessInfo } from "@/types";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+
+import Home from "@/pages/Home";
+import Auth from "@/pages/Auth";
+import About from "@/pages/About";
+import Contact from "@/pages/Contact";
+import Feedback from "@/pages/Feedback";
+
+import { Dashboard } from "@/sections/Dashboard";
+import { InvoiceList } from "@/sections/InvoiceList";
+import { CreateInvoice } from "@/sections/CreateInvoice";
+import { CustomerList } from "@/sections/CustomerList";
+import { Settings } from "@/sections/Settings";
+
+import { BottomNav } from "@/components/BottomNav";
+import { Header } from "@/components/Header";
+import { Toaster } from "@/components/ui/sonner";
+import { usePWAInstall } from "@/hooks/usePWAInstall";
 
 function App() {
-  const [currentView, setCurrentView] = useState<View>(
-    localStorage.getItem('invoicepro_session') ? 'dashboard' : 'landing'
-  );
-  const [invoices, setInvoices] = useLocalStorage<Invoice[]>('invoicepro_invoices', []);
-  const [customers, setCustomers] = useLocalStorage<Customer[]>('invoicepro_customers', []);
-  const [businessInfo, setBusinessInfo] = useLocalStorage<BusinessInfo>('invoicepro_business', {
-    name: 'My Business',
-    address: '',
-    phone: '',
-    email: '',
+  const navigate = useNavigate();
+
+  const [invoices, setInvoices] = useLocalStorage<Invoice[]>("invoicepro_invoices", []);
+  const [customers, setCustomers] = useLocalStorage<Customer[]>("invoicepro_customers", []);
+  const [businessInfo, setBusinessInfo] = useLocalStorage<BusinessInfo>("invoicepro_business", {
+    name: "My Business",
+    address: "",
+    phone: "",
+    email: "",
   });
 
-  const { isInstallable, installApp } = usePWAInstall(); // Typed PWA hook
+  const isLoggedIn = !!localStorage.getItem("invoicepro_session");
 
+  const { isInstallable, installApp } = usePWAInstall();
+
+  // ================= ACTIONS =================
   const addInvoice = (invoice: Invoice) => {
-    setInvoices(prev => [invoice, ...prev]);
+    setInvoices((prev) => [invoice, ...prev]);
   };
 
   const deleteInvoice = (id: string) => {
-    setInvoices(prev => prev.filter(inv => inv.id !== id));
+    setInvoices((prev) => prev.filter((inv) => inv.id !== id));
   };
 
   const markAsPaid = (id: string) => {
-    setInvoices(prev => prev.map(inv => 
-      inv.id === id 
-        ? { ...inv, status: 'paid' as const, paidAt: new Date().toISOString() }
-        : inv
-    ));
+    setInvoices((prev) =>
+      prev.map((inv) =>
+        inv.id === id
+          ? { ...inv, status: "paid" as const, paidAt: new Date().toISOString() }
+          : inv
+      )
+    );
   };
 
   const addCustomer = (customer: Customer) => {
-    setCustomers(prev => [customer, ...prev]);
+    setCustomers((prev) => [customer, ...prev]);
   };
 
   const updateCustomer = (updatedCustomer: Customer) => {
-    setCustomers(prev => prev.map(cust => cust.id === updatedCustomer.id ? updatedCustomer : cust));
+    setCustomers((prev) =>
+      prev.map((cust) => (cust.id === updatedCustomer.id ? updatedCustomer : cust))
+    );
   };
 
   const deleteCustomer = (id: string) => {
-    setCustomers(prev => prev.filter(cust => cust.id !== id));
+    setCustomers((prev) => prev.filter((cust) => cust.id !== id));
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('invoicepro_session');
-    setCurrentView('landing');
+    localStorage.removeItem("invoicepro_session");
+    navigate("/");
   };
 
-  const renderView = () => {
-    switch (currentView) {
-      case 'landing':
-        return (
-          <Home
-            onGetStarted={() => setCurrentView('auth')}
-            onLogin={() => setCurrentView('auth')}
-          />
-        );
-
-      case 'auth':
-        return (
-          <Auth
-            onAuthSuccess={() => setCurrentView('dashboard')}
-            onBack={() => setCurrentView('landing')}
-          />
-        );
-
-      case 'dashboard':
-        return (
-          <Dashboard
-            invoices={invoices}
-            onCreateInvoice={() => setCurrentView('create-invoice')}
-            onViewInvoices={() => setCurrentView('invoices')}
-            onViewCustomers={() => setCurrentView('customers')}
-          />
-        );
-
-      case 'invoices':
-        return (
-          <InvoiceList
-            invoices={invoices}
-            customers={customers}
-            businessInfo={businessInfo}
-            onMarkAsPaid={markAsPaid}
-            onDelete={deleteInvoice}
-            onCreateNew={() => setCurrentView('create-invoice')}
-          />
-        );
-
-      case 'create-invoice':
-        return (
-          <CreateInvoice
-            customers={customers}
-            businessInfo={businessInfo}
-            onSave={addInvoice}
-            onAddCustomer={addCustomer}
-            onCancel={() => setCurrentView('invoices')}
-          />
-        );
-
-      case 'customers':
-        return (
-          <CustomerList
-            customers={customers}
-            invoices={invoices}
-            onAdd={addCustomer}
-            onUpdate={updateCustomer}
-            onDelete={deleteCustomer}
-          />
-        );
-
-      case 'settings':
-        return (
-          <Settings
-            businessInfo={businessInfo}
-            onUpdate={setBusinessInfo}
-          />
-        );
-
-      default:
-        return (
-          <Dashboard
-            invoices={invoices}
-            onCreateInvoice={() => setCurrentView('create-invoice')}
-            onViewInvoices={() => setCurrentView('invoices')}
-            onViewCustomers={() => setCurrentView('customers')}
-          />
-        );
-    }
-  };
-
+  // ================= UI =================
   return (
     <div className="min-h-screen bg-gray-50 relative">
-      {currentView !== 'landing' && (
+      
+      {/* Header */}
+      {isLoggedIn && (
         <Header
           businessName={businessInfo.name}
-          onSettings={() => setCurrentView('settings')}
+          onSettings={() => navigate("/settings")}
           onLogout={handleLogout}
         />
       )}
 
       <main className="pb-20 md:pb-0">
-        {renderView()}
+        <Routes>
+
+          {/* Public */}
+          <Route path="/" element={<Home onGetStarted={() => navigate("/auth")} onLogin={() => navigate("/auth")} />} />
+          <Route path="/auth" element={<Auth onAuthSuccess={() => navigate("/dashboard")} onBack={() => navigate("/")} />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/feedback" element={<Feedback />} />
+
+          {/* Protected */}
+          <Route
+            path="/dashboard"
+            element={
+              isLoggedIn ? (
+                <Dashboard
+                  invoices={invoices}
+                  onCreateInvoice={() => navigate("/create-invoice")}
+                  onViewInvoices={() => navigate("/invoices")}
+                  onViewCustomers={() => navigate("/customers")}
+                />
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
+
+          <Route
+            path="/invoices"
+            element={
+              isLoggedIn ? (
+                <InvoiceList
+                  invoices={invoices}
+                  customers={customers}
+                  businessInfo={businessInfo}
+                  onMarkAsPaid={markAsPaid}
+                  onDelete={deleteInvoice}
+                  onCreateNew={() => navigate("/create-invoice")}
+                />
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
+
+          <Route
+            path="/create-invoice"
+            element={
+              isLoggedIn ? (
+                <CreateInvoice
+                  customers={customers}
+                  businessInfo={businessInfo}
+                  onSave={(inv) => {
+                    addInvoice(inv);
+                    navigate("/invoices");
+                  }}
+                  onAddCustomer={addCustomer}
+                  onCancel={() => navigate("/invoices")}
+                />
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
+
+          <Route
+            path="/customers"
+            element={
+              isLoggedIn ? (
+                <CustomerList
+                  customers={customers}
+                  invoices={invoices}
+                  onAdd={addCustomer}
+                  onUpdate={updateCustomer}
+                  onDelete={deleteCustomer}
+                />
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
+
+          <Route
+            path="/settings"
+            element={
+              isLoggedIn ? (
+                <Settings
+                  businessInfo={businessInfo}
+                  onUpdate={setBusinessInfo}
+                />
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
+
+        </Routes>
       </main>
 
-     {/* PWA Install Button */}
+      {/* Install Button */}
       {isInstallable && (
         <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50">
           <button
@@ -168,8 +196,13 @@ function App() {
           </button>
         </div>
       )}
-      {currentView !== 'landing' && (
-        <BottomNav currentView={currentView} onNavigate={setCurrentView} />
+
+      {/* Bottom Nav */}
+      {isLoggedIn && (
+        <BottomNav
+          currentView={"dashboard"} // we’ll improve this next
+          onNavigate={(view) => navigate(`/${view}`)}
+        />
       )}
 
       <Toaster position="top-center" />
