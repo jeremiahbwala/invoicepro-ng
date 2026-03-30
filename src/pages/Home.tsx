@@ -8,9 +8,12 @@ interface HomeProps {
   businessName?: string;
   onGetStarted: () => void;
   onLogin: () => void;
+  onAbout: () => void;
+  onContact: () => void;
+  onFeedback: () => void;
 }
 
-export default function Home({ businessName, onGetStarted }: HomeProps) {
+export default function Home({ businessName, onGetStarted, onAbout, onContact, onFeedback }: HomeProps) {
   return (
     <div className="min-h-screen bg-white text-slate-900">
 
@@ -197,11 +200,11 @@ export default function Home({ businessName, onGetStarted }: HomeProps) {
   <div className="grid grid-cols-2 md:grid-cols-4 gap-10">
     <div>
       <h4 className="text-white font-semibold mb-3">InvoicePro NG</h4>
-      <p className="text-sm">Built by <span className="text-white font-medium">K & C Legacy Cooperation</span></p>
+      <p className="text-sm">Built by <span className="text-white font-medium">StratosCore</span></p>
       <div className="flex gap-3 mt-4">
         <a href="https://www.facebook.com/profile.php?id=61578772844034" target="_blank" rel="noopener noreferrer" className="w-8 h-8 bg-blue-600 rounded-md flex items-center justify-center text-white text-sm font-bold">F</a>
         <a href="https://x.com/charl11428" target="_blank" rel="noopener noreferrer" className="w-8 h-8 bg-sky-400 rounded-md flex items-center justify-center text-white text-sm font-bold">T</a>
-        <a href="https://linkedin.com/in/charles-jeremiah-bwala-1ba9a0387" target="_blank" rel="noopener noreferrer" className="w-8 h-8 bg-blue-700 rounded-md flex items-center justify-center text-white text-sm font-bold">In</a>
+        <a href="https://linkedin.com/company/stratos-core" target="_blank" rel="noopener noreferrer" className="w-8 h-8 bg-blue-700 rounded-md flex items-center justify-center text-white text-sm font-bold">In</a>
       </div>
     </div>
     <div>
@@ -211,9 +214,9 @@ export default function Home({ businessName, onGetStarted }: HomeProps) {
     </div>
     <div>
       <h4 className="text-white font-semibold mb-3">Company</h4>
-      <a href="#" className="block text-sm mb-2 hover:text-white">About</a>
-      <a href="#" className="block text-sm mb-2 hover:text-white">Contact</a>
-      <a href="#" className="block text-sm mb-2 hover:text-white">Feedback</a>
+      <button onClick={onAbout} className="block text-sm mb-2 hover:text-white">About</button>
+      <button onClick={onContact} className="block text-sm mb-2 hover:text-white">Contact</button>
+      <button onClick={onFeedback} className="block text-sm mb-2 hover:text-white">Feedback</button>
     </div>
     <div>
       <h4 className="text-white font-semibold mb-3">Legal</h4>
@@ -223,7 +226,7 @@ export default function Home({ businessName, onGetStarted }: HomeProps) {
   </div>
   <div className="border-t border-slate-700 mt-10 pt-6 flex flex-col md:flex-row justify-between gap-3 text-sm">
     <p>© 2026 InvoicePro NG</p>
-    <p>Powered by K & C Legacy Cooperation</p>
+    <p>Powered by StratosCore</p>
   </div>
 </footer>
 

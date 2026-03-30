@@ -74,7 +74,7 @@ export function InvoiceList({ invoices, businessInfo, onMarkAsPaid, onDelete, on
     try {
       await generateInvoicePDF(invoice, businessInfo);
       toast.success('Invoice downloaded successfully!');
-    } catch (error) {
+    } catch {
       toast.error('Failed to download invoice');
     }
   };
