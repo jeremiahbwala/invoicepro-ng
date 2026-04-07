@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 import type { Invoice, Customer, BusinessInfo } from "@/types";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 
@@ -21,6 +21,7 @@ import { usePWAInstall } from "@/hooks/usePWAInstall";
 
 function App() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [invoices, setInvoices] = useLocalStorage<Invoice[]>("invoicepro_invoices", []);
   const [customers, setCustomers] = useLocalStorage<Customer[]>("invoicepro_customers", []);
@@ -78,7 +79,7 @@ function App() {
     <div className="min-h-screen bg-gray-50 relative">
       
       {/* Header */}
-      {isLoggedIn && (
+      {isLoggedIn && location.pathname !== "/" && (
         <Header
           businessName={businessInfo.name}
           onSettings={() => navigate("/settings")}
@@ -198,7 +199,7 @@ function App() {
       )}
 
       {/* Bottom Nav */}
-      {isLoggedIn && (
+      {isLoggedIn && location.pathname !== "/" && (
         <BottomNav
           currentView={"dashboard"} // we’ll improve this next
           onNavigate={(view) => navigate(`/${view}`)}
