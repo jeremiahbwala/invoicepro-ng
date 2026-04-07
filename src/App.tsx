@@ -22,6 +22,7 @@ import { usePWAInstall } from "@/hooks/usePWAInstall";
 function App() {
   const navigate = useNavigate();
   const location = useLocation();
+  const publicPaths = ["/", "/auth", "/about", "/contact", "/feedback"];
 
   const [invoices, setInvoices] = useLocalStorage<Invoice[]>("invoicepro_invoices", []);
   const [customers, setCustomers] = useLocalStorage<Customer[]>("invoicepro_customers", []);
@@ -79,7 +80,7 @@ function App() {
     <div className="min-h-screen bg-gray-50 relative">
       
       {/* Header */}
-      {isLoggedIn && location.pathname !== "/" && (
+      {isLoggedIn && !publicPaths.includes(location.pathname) && (
         <Header
           businessName={businessInfo.name}
           onSettings={() => navigate("/settings")}
@@ -199,9 +200,9 @@ function App() {
       )}
 
       {/* Bottom Nav */}
-      {isLoggedIn && location.pathname !== "/" && (
+      {isLoggedIn && !publicPaths.includes(location.pathname) && (
         <BottomNav
-          currentView={"dashboard"} // we’ll improve this next
+          currentView={"dashboard"} 
           onNavigate={(view) => navigate(`/${view}`)}
         />
       )}

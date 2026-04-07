@@ -19,24 +19,26 @@ export default function Home({ businessName, onGetStarted, onAbout, onContact, o
 
       {/* NAVBAR */}
       <nav className="sticky top-0 z-50 bg-white border-b flex justify-between items-center px-6 md:px-[6%] py-4">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center">
-            <Receipt className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <h1 className="font-bold text-emerald-800 text-sm leading-tight">InvoicePro NG</h1>
-            <p className="text-xs text-gray-500 truncate max-w-[120px]">{businessName}</p>
-          </div>
-        </div>
-        <div className="hidden md:flex items-center gap-7">
-          <a href="#features" className="font-medium text-slate-700 hover:text-emerald-600">Features</a>
-          <a href="#pricing" className="font-medium text-slate-700 hover:text-emerald-600">Pricing</a>
-          <a href="#about" className="font-medium text-slate-700 hover:text-emerald-600">About</a>
-          <button onClick={onGetStarted} className="border border-emerald-500 text-emerald-600 px-4 py-2 rounded-lg font-semibold hover:bg-emerald-50">Login</button>
-          <button onClick={onGetStarted} className="bg-emerald-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-emerald-600">Get Started</button>
-        </div>
-        <button onClick={onGetStarted} className="md:hidden bg-emerald-500 text-white px-4 py-2 rounded-lg font-semibold text-sm">Get Started</button>
-      </nav>
+  {/* Logo */}
+  <div className="flex items-center gap-2">
+    <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center">
+      <Receipt className="w-5 h-5 text-white" />
+    </div>
+    <div>
+      <h1 className="font-bold text-emerald-800 text-sm leading-tight">InvoicePro NG</h1>
+      <p className="text-xs text-gray-500 truncate max-w-[120px]">{businessName}</p>
+    </div>
+  </div>
+
+  {/* Single nav row for all screen sizes */}
+  <div className="flex items-center gap-4 md:gap-7">
+    <a href="#features" className="hidden md:block font-medium text-slate-700 hover:text-emerald-600 text-sm">Features</a>
+    <a href="#pricing" className="hidden md:block font-medium text-slate-700 hover:text-emerald-600 text-sm">Pricing</a>
+    <button onClick={onAbout} className="hidden md:block font-medium text-slate-700 hover:text-emerald-600 text-sm">About</button>
+    <button onClick={onGetStarted} className="border border-emerald-500 text-emerald-600 px-3 md:px-4 py-2 rounded-lg font-semibold hover:bg-emerald-50 text-sm">Login</button>
+    <button onClick={onGetStarted} className="bg-emerald-500 text-white px-3 md:px-4 py-2 rounded-lg font-semibold hover:bg-emerald-600 text-sm">Get Started</button>
+  </div>
+</nav>
 
       {/* HERO */}
       <section className="flex flex-col md:flex-row items-center justify-between gap-12 px-6 md:px-[6%] py-20 bg-slate-50">
