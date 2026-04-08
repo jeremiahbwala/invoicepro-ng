@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 
 interface AuthProps {
   onAuthSuccess: () => void;
@@ -10,13 +11,14 @@ export default function Auth({ onAuthSuccess, initialMode = 'signin' }: AuthProp
   const [mode, setMode] = useState<'signin' | 'signup'>(initialMode);
   const [form, setForm] = useState({ fullName: '', businessName: '', email: '', password: '' });
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
     setError('');
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
@@ -49,6 +51,17 @@ export default function Auth({ onAuthSuccess, initialMode = 'signin' }: AuthProp
         phone: '',
         email: form.email,
       }));
+
+      // Send to Formspree
+      await fetch('https://formspree.io/f/meepdlzy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fullName: form.fullName,
+          businessName: form.businessName,
+          email: form.email,
+        }),
+      });
 
       localStorage.setItem('invoicepro_session', 'true');
       onAuthSuccess();
@@ -142,14 +155,23 @@ export default function Auth({ onAuthSuccess, initialMode = 'signin' }: AuthProp
 
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Password</label>
-              <input
-                name="password"
-                type="password"
-                placeholder="••••••••"
-                value={form.password}
-                onChange={handleChange}
-                className="w-full border rounded-lg px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-emerald-400"
-              />
+              <div className="relative">
+                <input
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="••••••••"
+                  value={form.password}
+                  onChange={handleChange}
+                  className="w-full border rounded-lg px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-emerald-400 pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(prev => !prev)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
 
             {error && (
