@@ -19,26 +19,25 @@ export default function Home({ businessName, onGetStarted, onAbout, onContact, o
 
       {/* NAVBAR */}
       <nav className="sticky top-0 z-50 bg-white border-b flex justify-between items-center px-6 md:px-[6%] py-4">
-  {/* Logo */}
-  <div className="flex items-center gap-2">
-    <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center">
-      <Receipt className="w-5 h-5 text-white" />
-    </div>
-    <div>
-      <h1 className="font-bold text-emerald-800 text-sm leading-tight">InvoicePro NG</h1>
-      <p className="text-xs text-gray-500 truncate max-w-[120px]">{businessName}</p>
-    </div>
-  </div>
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center">
+            <Receipt className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h1 className="font-bold text-emerald-800 text-sm leading-tight">InvoicePro NG</h1>
+            <p className="text-xs text-gray-500 truncate max-w-[120px]">{businessName}</p>
+          </div>
+        </div>
 
-  {/* Single nav row for all screen sizes */}
-  <div className="flex items-center gap-4 md:gap-7">
-    <a href="#features" className="hidden md:block font-medium text-slate-700 hover:text-emerald-600 text-sm">Features</a>
-    <a href="#pricing" className="hidden md:block font-medium text-slate-700 hover:text-emerald-600 text-sm">Pricing</a>
-    <button onClick={onAbout} className="hidden md:block font-medium text-slate-700 hover:text-emerald-600 text-sm">About</button>
-    <button onClick={onGetStarted} className="border border-emerald-500 text-emerald-600 px-3 md:px-4 py-2 rounded-lg font-semibold hover:bg-emerald-50 text-sm">Login</button>
-    <button onClick={onGetStarted} className="bg-emerald-500 text-white px-3 md:px-4 py-2 rounded-lg font-semibold hover:bg-emerald-600 text-sm">Get Started</button>
-  </div>
-</nav>
+        {/* Single nav row for all screen sizes */}
+        <div className="flex items-center gap-4 md:gap-7">
+          <a href="#features" className="hidden md:block font-medium text-slate-700 hover:text-emerald-600 text-sm">Features</a>
+          <a href="#pricing" className="hidden md:block font-medium text-slate-700 hover:text-emerald-600 text-sm">Pricing</a>
+          <button onClick={onAbout} className="hidden md:block font-medium text-slate-700 hover:text-emerald-600 text-sm">About</button>
+          <button onClick={onGetStarted} className="border border-emerald-500 text-emerald-600 px-3 md:px-4 py-2 rounded-lg font-semibold hover:bg-emerald-50 text-sm">Login</button>
+          <button onClick={onGetStarted} className="bg-emerald-500 text-white px-3 md:px-4 py-2 rounded-lg font-semibold hover:bg-emerald-600 text-sm">Get Started</button>
+        </div>
+      </nav>
 
       {/* HERO */}
       <section className="flex flex-col md:flex-row items-center justify-between gap-12 px-6 md:px-[6%] py-20 bg-slate-50">
@@ -198,40 +197,39 @@ export default function Home({ businessName, onGetStarted, onAbout, onContact, o
       </section>
 
       {/* FOOTER */}
-<footer className="bg-slate-900 text-slate-400 px-6 md:px-[6%] py-16">
-  <div className="grid grid-cols-2 md:grid-cols-4 gap-10">
-    <div>
-      <h4 className="text-white font-semibold mb-3">InvoicePro NG</h4>
-      <p className="text-sm">Built by <span className="text-white font-medium">StratosCore</span></p>
-      <div className="flex gap-3 mt-4">
-        <a href="https://www.facebook.com/profile.php?id=61578772844034" target="_blank" rel="noopener noreferrer" className="w-8 h-8 bg-blue-600 rounded-md flex items-center justify-center text-white text-sm font-bold">F</a>
-        <a href="https://x.com/charl11428" target="_blank" rel="noopener noreferrer" className="w-8 h-8 bg-sky-400 rounded-md flex items-center justify-center text-white text-sm font-bold">T</a>
-        <a href="https://linkedin.com/company/stratos-core" target="_blank" rel="noopener noreferrer" className="w-8 h-8 bg-blue-700 rounded-md flex items-center justify-center text-white text-sm font-bold">In</a>
-      </div>
-    </div>
-    <div>
-      <h4 className="text-white font-semibold mb-3">Product</h4>
-      <a href="#features" className="block text-sm mb-2 hover:text-white">Features</a>
-      <a href="#pricing" className="block text-sm mb-2 hover:text-white">Pricing</a>
-    </div>
-    <div>
-      <h4 className="text-white font-semibold mb-3">Company</h4>
-      <button onClick={onAbout} className="block text-sm mb-2 hover:text-white">About</button>
-      <button onClick={onContact} className="block text-sm mb-2 hover:text-white">Contact</button>
-      <button onClick={onFeedback} className="block text-sm mb-2 hover:text-white">Feedback</button>
-    </div>
-    <div>
-      <h4 className="text-white font-semibold mb-3">Legal</h4>
-      <a href="#" className="block text-sm mb-2 hover:text-white">Privacy</a>
-      <a href="#" className="block text-sm mb-2 hover:text-white">Terms</a>
-    </div>
-  </div>
-  <div className="border-t border-slate-700 mt-10 pt-6 flex flex-col md:flex-row justify-between gap-3 text-sm">
-    <p>© 2026 InvoicePro NG</p>
-    <p>Powered by StratosCore</p>
-  </div>
-</footer>
-
+      <footer className="bg-slate-900 text-slate-400 px-6 md:px-[6%] py-16">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-10">
+          <div>
+            <h4 className="text-white font-semibold mb-3">InvoicePro NG</h4>
+            <p className="text-sm">Built by <span className="text-white font-medium">StratosCore</span></p>
+            <div className="flex gap-3 mt-4">
+              <a href="#" target="_blank" rel="noopener noreferrer" className="w-8 h-8 bg-blue-600 rounded-md flex items-center justify-center text-white text-sm font-bold">F</a>
+              <a href="#" target="_blank" rel="noopener noreferrer" className="w-8 h-8 bg-sky-400 rounded-md flex items-center justify-center text-white text-sm font-bold">T</a>
+              <a href="https://linkedin.com/company/stratos-core" target="_blank" rel="noopener noreferrer" className="w-8 h-8 bg-blue-700 rounded-md flex items-center justify-center text-white text-sm font-bold">In</a>
+            </div>
+          </div>
+          <div>
+            <h4 className="text-white font-semibold mb-3">Product</h4>
+            <a href="#features" className="block text-sm mb-2 hover:text-white">Features</a>
+            <a href="#pricing" className="block text-sm mb-2 hover:text-white">Pricing</a>
+          </div>
+          <div>
+            <h4 className="text-white font-semibold mb-3">Company</h4>
+            <button onClick={onAbout} className="block text-sm mb-2 hover:text-white">About</button>
+            <button onClick={onContact} className="block text-sm mb-2 hover:text-white">Contact</button>
+            <button onClick={onFeedback} className="block text-sm mb-2 hover:text-white">Feedback</button>
+          </div>
+          <div>
+            <h4 className="text-white font-semibold mb-3">Legal</h4>
+            <a href="#" className="block text-sm mb-2 hover:text-white">Privacy</a>
+            <a href="#" className="block text-sm mb-2 hover:text-white">Terms</a>
+          </div>
+        </div>
+        <div className="border-t border-slate-700 mt-10 pt-6 flex flex-col md:flex-row justify-between gap-3 text-sm">
+          <p>© 2026 InvoicePro NG</p>
+          <p>Powered by StratosCore</p>
+        </div>
+      </footer>
     </div>
   );
 }
