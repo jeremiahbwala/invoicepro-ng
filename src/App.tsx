@@ -92,7 +92,7 @@ function App() {
         <Routes>
 
           {/* Public */}
-          <Route path="/" element={<Home onGetStarted={() => navigate("/auth")} onLogin={() => navigate("/auth")} onAbout={() => navigate("/about")} onContact={() => navigate("/contact")} onFeedback={() => navigate("/feedback")} />} />
+          <Route path="/" element={<Home onGetStarted={() => navigate("/auth?mode=signup")} onLogin={() => navigate("/auth")} onAbout={() => navigate("/about")} onContact={() => navigate("/contact")} onFeedback={() => navigate("/feedback")} />} />
           <Route path="/auth" element={<Auth onAuthSuccess={() => navigate("/dashboard")} onBack={() => navigate("/")} />} />
           <Route path="/about" element={<About onGetStarted={() => navigate("/auth")} />} />
           <Route path="/contact" element={<Contact />} />

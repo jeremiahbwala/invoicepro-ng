@@ -1,5 +1,6 @@
 import { Receipt } from 'lucide-react';
 
+
 interface AboutProps {
   businessName?: string;
   onGetStarted: () => void;

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 
 interface AuthProps {
   onAuthSuccess: () => void;
@@ -8,7 +9,10 @@ interface AuthProps {
 }
 
 export default function Auth({ onAuthSuccess, initialMode = 'signin' }: AuthProps) {
-  const [mode, setMode] = useState<'signin' | 'signup'>(initialMode);
+  const [searchParams] = useSearchParams();
+  const [mode, setMode] = useState<'signin' | 'signup'>(
+    searchParams.get('mode') === 'signup' ? 'signup' : initialMode
+  );
   const [form, setForm] = useState({ fullName: '', businessName: '', email: '', password: '' });
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
