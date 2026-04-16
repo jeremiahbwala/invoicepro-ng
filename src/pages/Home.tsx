@@ -1,7 +1,7 @@
 import heroImage from "../assets/hero-image.png";
 import invoiceAction from "../assets/invoice-action.png";
 import { Receipt } from 'lucide-react';
-import { FileText, Users, LayoutDashboard, Download, Smartphone, ShieldCheck, Facebook, Twitter, Linkedin } from 'lucide-react';
+import { FileText, Users, LayoutDashboard, Download, Smartphone, ShieldCheck, Twitter, Linkedin } from 'lucide-react';
 
 
 interface HomeProps {
@@ -212,11 +212,7 @@ export default function Home({ businessName, onGetStarted, onContact, onFeedback
             </div>
             <p className="text-sm text-emerald-100">Built by <span className="text-white font-medium">StratosCore</span></p>
             <div className="flex gap-3 mt-4">
-              <a href="https://www.facebook.com/profile.php?id=61578772844034" target="_blank" rel="noopener noreferrer"
-                className="w-8 h-8 bg-white/20 hover:bg-white/30 rounded-md flex items-center justify-center transition-colors">
-                <Facebook className="w-4 h-4 text-white" />
-              </a>
-              <a href="https://x.com/charl11428" target="_blank" rel="noopener noreferrer"
+              <a href="https://x.com/BwalaCharl42549" target="_blank" rel="noopener noreferrer"
                 className="w-8 h-8 bg-white/20 hover:bg-white/30 rounded-md flex items-center justify-center transition-colors">
                 <Twitter className="w-4 h-4 text-white" />
               </a>
