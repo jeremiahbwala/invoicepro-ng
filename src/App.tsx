@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 import type { Invoice, Customer, BusinessInfo } from "@/types";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useState } from "react";
 
 import Home from "@/pages/Home";
 import Auth from "@/pages/Auth";
@@ -23,6 +24,7 @@ function App() {
   const navigate = useNavigate();
   const location = useLocation();
   const publicPaths = ["/", "/auth", "/about", "/contact", "/feedback"];
+  const [invoiceStatusFilter, setInvoiceStatusFilter] = useState('all');
 
   const [invoices, setInvoices] = useLocalStorage<Invoice[]>("invoicepro_invoices", []);
   const [customers, setCustomers] = useLocalStorage<Customer[]>("invoicepro_customers", []);
@@ -103,12 +105,16 @@ function App() {
             path="/dashboard"
             element={
               isLoggedIn ? (
-                <Dashboard
-                  invoices={invoices}
-                  onCreateInvoice={() => navigate("/create-invoice")}
-                  onViewInvoices={() => navigate("/invoices")}
-                  onViewCustomers={() => navigate("/customers")}
-                />
+                 <Dashboard
+                    invoices={invoices}
+                    onCreateInvoice={() => navigate('/create-invoice')}
+                    onViewInvoices={() => navigate('/invoices')}
+                    onViewCustomers={() => navigate('/customers')}
+                    onViewInvoicesByStatus={(status) => {
+                      setInvoiceStatusFilter(status);
+                      navigate('/invoices');
+                    }}
+                  />
               ) : (
                 <Navigate to="/" />
               )
@@ -125,7 +131,8 @@ function App() {
                   businessInfo={businessInfo}
                   onMarkAsPaid={markAsPaid}
                   onDelete={deleteInvoice}
-                  onCreateNew={() => navigate("/create-invoice")}
+                  onCreateNew={() => navigate('/create-invoice')}
+                  initialStatusFilter={invoiceStatusFilter}
                 />
               ) : (
                 <Navigate to="/" />
