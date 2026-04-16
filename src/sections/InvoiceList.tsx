@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Search, Filter, Download, CheckCircle, Trash2, Eye, FileText, Plus } from 'lucide-react';
+import { Search, Filter, Download, CheckCircle, Trash2, Eye, FileText, Plus, Send } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,17 +18,19 @@ interface InvoiceListProps {
   onMarkAsPaid: (id: string) => void;
   onDelete: (id: string) => void;
   onCreateNew: () => void;
+  initialStatusFilter?: string;
 }
 
-export function InvoiceList({ invoices, businessInfo, onMarkAsPaid, onDelete, onCreateNew }: InvoiceListProps) {
+export function InvoiceList({ invoices, businessInfo, onMarkAsPaid, onDelete, onCreateNew, initialStatusFilter = 'all' }: InvoiceListProps) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<InvoiceStatus | 'all'>('all');
+  const [statusFilter, setStatusFilter] = useState<InvoiceStatus | 'all'>(initialStatusFilter as InvoiceStatus | 'all');
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [isViewOpen, setIsViewOpen] = useState(false);
+  const [sendingEmail, setSendingEmail] = useState(false);
 
   const filteredInvoices = useMemo(() => {
     return invoices.filter(invoice => {
-      const matchesSearch = 
+      const matchesSearch =
         invoice.invoiceNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
         invoice.customerName.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesStatus = statusFilter === 'all' || invoice.status === statusFilter;
@@ -36,32 +38,18 @@ export function InvoiceList({ invoices, businessInfo, onMarkAsPaid, onDelete, on
     });
   }, [invoices, searchQuery, statusFilter]);
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-NG', {
-      style: 'currency',
-      currency: 'NGN',
-      minimumFractionDigits: 0,
-    }).format(amount);
-  };
+  const formatCurrency = (amount: number) =>
+    new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', minimumFractionDigits: 0 }).format(amount);
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-NG', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-    });
-  };
+  const formatDate = (dateString: string) =>
+    new Date(dateString).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' });
 
   const getStatusColor = (status: InvoiceStatus) => {
     switch (status) {
-      case 'paid':
-        return 'bg-emerald-100 text-emerald-700 border-emerald-200';
-      case 'unpaid':
-        return 'bg-amber-100 text-amber-700 border-amber-200';
-      case 'overdue':
-        return 'bg-red-100 text-red-700 border-red-200';
-      default:
-        return 'bg-gray-100 text-gray-700 border-gray-200';
+      case 'paid': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
+      case 'unpaid': return 'bg-amber-100 text-amber-700 border-amber-200';
+      case 'overdue': return 'bg-red-100 text-red-700 border-red-200';
+      default: return 'bg-gray-100 text-gray-700 border-gray-200';
     }
   };
 
@@ -72,10 +60,13 @@ export function InvoiceList({ invoices, businessInfo, onMarkAsPaid, onDelete, on
 
   const handleDownload = async (invoice: Invoice) => {
     try {
+      toast.loading('Generating PDF...');
       await generateInvoicePDF(invoice, businessInfo);
-      toast.success('Invoice downloaded successfully!');
+      toast.dismiss();
+      toast.success('PDF downloaded successfully!');
     } catch {
-      toast.error('Failed to download invoice');
+      toast.dismiss();
+      toast.error('Failed to generate PDF');
     }
   };
 
@@ -91,26 +82,48 @@ export function InvoiceList({ invoices, businessInfo, onMarkAsPaid, onDelete, on
     if (confirm('Are you sure you want to delete this invoice?')) {
       onDelete(id);
       toast.success('Invoice deleted');
-      if (selectedInvoice?.id === id) {
-        setIsViewOpen(false);
-      }
+      if (selectedInvoice?.id === id) setIsViewOpen(false);
     }
   };
 
-  const isOverdue = (dueDate: string, status: InvoiceStatus) => {
-    if (status === 'paid') return false;
-    return new Date(dueDate) < new Date();
+  // ✅ FIX: Send to client via mailto (replace with API call when backend is ready)
+  const handleSendToClient = async (invoice: Invoice) => {
+    if (!invoice.customerEmail) {
+      toast.error('No email address on record for this client.');
+      return;
+    }
+    setSendingEmail(true);
+    try {
+      const subject = encodeURIComponent(`Invoice ${invoice.invoiceNumber} from ${businessInfo.name}`);
+      const body = encodeURIComponent(
+        `Hi ${invoice.customerName},\n\nPlease find attached your invoice ${invoice.invoiceNumber} for ${formatCurrency(invoice.total)}.\n\nDue Date: ${formatDate(invoice.dueDate)}\n\nThank you for your business.\n\n${businessInfo.name}`
+      );
+      window.location.href = `mailto:${invoice.customerEmail}?subject=${subject}&body=${body}`;
+      toast.success('Email client opened with invoice details.');
+    } catch {
+      toast.error('Failed to open email client.');
+    } finally {
+      setSendingEmail(false);
+    }
+  };
+
+  // ✅ FIX: Single source of truth for status — no double badge
+  const getDisplayStatus = (invoice: Invoice): InvoiceStatus => {
+    if (invoice.status === 'paid') return 'paid';
+    if (new Date(invoice.dueDate) < new Date()) return 'overdue';
+    return invoice.status;
   };
 
   return (
     <div className="p-4 max-w-5xl mx-auto space-y-4">
-      {/* Header */}
+
+      {/* Header — ✅ FIX: New Invoice button visible on all screens */}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-bold text-gray-900">Invoices</h2>
           <p className="text-sm text-gray-500">Manage and track your invoices</p>
         </div>
-        <Button onClick={onCreateNew} className="bg-emerald-600 hover:bg-emerald-700 hidden md:flex">
+        <Button onClick={onCreateNew} className="bg-emerald-600 hover:bg-emerald-700">
           <Plus className="w-4 h-4 mr-2" />
           New Invoice
         </Button>
@@ -121,7 +134,7 @@ export function InvoiceList({ invoices, businessInfo, onMarkAsPaid, onDelete, on
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <Input
-            placeholder="Search invoices..."
+            placeholder="Search by invoice number or client..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-9"
@@ -143,14 +156,17 @@ export function InvoiceList({ invoices, businessInfo, onMarkAsPaid, onDelete, on
 
       {/* Stats */}
       <div className="flex gap-2 overflow-x-auto pb-2">
-        <Badge variant="outline" className="bg-emerald-50 text-emerald-700">
+        <Badge variant="outline" className="bg-emerald-50 text-emerald-700 cursor-pointer" onClick={() => setStatusFilter('paid')}>
           {invoices.filter(i => i.status === 'paid').length} Paid
         </Badge>
-        <Badge variant="outline" className="bg-amber-50 text-amber-700">
+        <Badge variant="outline" className="bg-amber-50 text-amber-700 cursor-pointer" onClick={() => setStatusFilter('unpaid')}>
           {invoices.filter(i => i.status === 'unpaid').length} Unpaid
         </Badge>
-        <Badge variant="outline" className="bg-red-50 text-red-700">
-          {invoices.filter(i => isOverdue(i.dueDate, i.status)).length} Overdue
+        <Badge variant="outline" className="bg-red-50 text-red-700 cursor-pointer" onClick={() => setStatusFilter('overdue')}>
+          {invoices.filter(i => getDisplayStatus(i) === 'overdue').length} Overdue
+        </Badge>
+        <Badge variant="outline" className="bg-gray-50 text-gray-600 cursor-pointer" onClick={() => setStatusFilter('all')}>
+          All
         </Badge>
       </div>
 
@@ -158,23 +174,29 @@ export function InvoiceList({ invoices, businessInfo, onMarkAsPaid, onDelete, on
       {filteredInvoices.length === 0 ? (
         <Card className="p-8 text-center">
           <FileText className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-500 mb-4">
-            {searchQuery || statusFilter !== 'all' 
-              ? 'No invoices match your search' 
-              : 'No invoices yet'}
-          </p>
-          {!searchQuery && statusFilter === 'all' && (
-            <Button onClick={onCreateNew} className="bg-emerald-600 hover:bg-emerald-700">
-              Create Your First Invoice
-            </Button>
+          {searchQuery || statusFilter !== 'all' ? (
+            <>
+              <p className="text-gray-500 mb-2">No invoices match your search</p>
+              <button
+                onClick={() => { setSearchQuery(''); setStatusFilter('all'); }}
+                className="text-emerald-600 text-sm font-medium hover:underline"
+              >
+                Clear filters
+              </button>
+            </>
+          ) : (
+            <>
+              <p className="text-gray-500 mb-4">No invoices yet</p>
+              <Button onClick={onCreateNew} className="bg-emerald-600 hover:bg-emerald-700">
+                Create Your First Invoice
+              </Button>
+            </>
           )}
         </Card>
       ) : (
         <div className="space-y-2">
           {filteredInvoices.map((invoice) => {
-            const overdue = isOverdue(invoice.dueDate, invoice.status);
-            const displayStatus = overdue && invoice.status !== 'paid' ? 'overdue' : invoice.status;
-            
+            const displayStatus = getDisplayStatus(invoice);
             return (
               <Card key={invoice.id} className="hover:shadow-md transition-shadow">
                 <CardContent className="p-4">
@@ -182,14 +204,10 @@ export function InvoiceList({ invoices, businessInfo, onMarkAsPaid, onDelete, on
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <p className="font-semibold text-gray-900">{invoice.invoiceNumber}</p>
+                        {/* ✅ FIX: Single badge only — no duplicate */}
                         <Badge variant="outline" className={cn('text-xs capitalize', getStatusColor(displayStatus))}>
                           {displayStatus}
                         </Badge>
-                        {overdue && invoice.status !== 'paid' && (
-                          <Badge variant="outline" className="bg-red-50 text-red-700 text-xs">
-                            Overdue
-                          </Badge>
-                        )}
                       </div>
                       <p className="text-sm text-gray-600 truncate">{invoice.customerName}</p>
                       <div className="flex items-center gap-3 text-xs text-gray-500 mt-1">
@@ -202,44 +220,25 @@ export function InvoiceList({ invoices, businessInfo, onMarkAsPaid, onDelete, on
                       <p className="text-xs text-gray-500">{invoice.items.length} item(s)</p>
                     </div>
                   </div>
-                  
+
                   {/* Actions */}
-                  <div className="flex gap-2 mt-3 pt-3 border-t">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleView(invoice)}
-                      className="text-gray-600"
-                    >
-                      <Eye className="w-4 h-4 mr-1" />
-                      View
+                  <div className="flex gap-2 mt-3 pt-3 border-t flex-wrap">
+                    <Button variant="ghost" size="sm" onClick={() => handleView(invoice)} className="text-gray-600">
+                      <Eye className="w-4 h-4 mr-1" /> View
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDownload(invoice)}
-                      className="text-gray-600"
-                    >
-                      <Download className="w-4 h-4 mr-1" />
-                      PDF
+                    <Button variant="ghost" size="sm" onClick={() => handleDownload(invoice)} className="text-gray-600">
+                      <Download className="w-4 h-4 mr-1" /> Download PDF
+                    </Button>
+                    {/* ✅ FIX: Send to Client button visible */}
+                    <Button variant="ghost" size="sm" onClick={() => handleSendToClient(invoice)} className="text-blue-600" disabled={sendingEmail}>
+                      <Send className="w-4 h-4 mr-1" /> Send to Client
                     </Button>
                     {invoice.status !== 'paid' && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleMarkAsPaid(invoice.id)}
-                        className="text-emerald-600"
-                      >
-                        <CheckCircle className="w-4 h-4 mr-1" />
-                        Mark Paid
+                      <Button variant="ghost" size="sm" onClick={() => handleMarkAsPaid(invoice.id)} className="text-emerald-600">
+                        <CheckCircle className="w-4 h-4 mr-1" /> Mark Paid
                       </Button>
                     )}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDelete(invoice.id)}
-                      className="text-red-500 ml-auto"
-                    >
+                    <Button variant="ghost" size="sm" onClick={() => handleDelete(invoice.id)} className="text-red-500 ml-auto">
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>
@@ -258,14 +257,13 @@ export function InvoiceList({ invoices, businessInfo, onMarkAsPaid, onDelete, on
               <DialogHeader>
                 <DialogTitle className="flex items-center justify-between">
                   <span>{selectedInvoice.invoiceNumber}</span>
-                  <Badge className={cn('capitalize', getStatusColor(selectedInvoice.status))}>
-                    {selectedInvoice.status}
+                  <Badge className={cn('capitalize', getStatusColor(getDisplayStatus(selectedInvoice)))}>
+                    {getDisplayStatus(selectedInvoice)}
                   </Badge>
                 </DialogTitle>
               </DialogHeader>
-              
+
               <div className="space-y-6 pt-4">
-                {/* Business & Customer Info */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm font-medium text-gray-500">From</p>
@@ -283,7 +281,6 @@ export function InvoiceList({ invoices, businessInfo, onMarkAsPaid, onDelete, on
                   </div>
                 </div>
 
-                {/* Dates */}
                 <div className="flex gap-6">
                   <div>
                     <p className="text-sm font-medium text-gray-500">Issue Date</p>
@@ -301,7 +298,6 @@ export function InvoiceList({ invoices, businessInfo, onMarkAsPaid, onDelete, on
                   )}
                 </div>
 
-                {/* Items */}
                 <div>
                   <p className="text-sm font-medium text-gray-500 mb-2">Items</p>
                   <div className="border rounded-lg overflow-hidden">
@@ -328,7 +324,6 @@ export function InvoiceList({ invoices, businessInfo, onMarkAsPaid, onDelete, on
                   </div>
                 </div>
 
-                {/* Totals */}
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Subtotal</span>
@@ -344,7 +339,6 @@ export function InvoiceList({ invoices, businessInfo, onMarkAsPaid, onDelete, on
                   </div>
                 </div>
 
-                {/* Notes */}
                 {selectedInvoice.notes && (
                   <div>
                     <p className="text-sm font-medium text-gray-500">Notes</p>
@@ -352,7 +346,6 @@ export function InvoiceList({ invoices, businessInfo, onMarkAsPaid, onDelete, on
                   </div>
                 )}
 
-                {/* Payment Terms */}
                 {selectedInvoice.paymentTerms && (
                   <div>
                     <p className="text-sm font-medium text-gray-500">Payment Terms</p>
@@ -360,23 +353,17 @@ export function InvoiceList({ invoices, businessInfo, onMarkAsPaid, onDelete, on
                   </div>
                 )}
 
-                {/* Actions */}
-                <div className="flex gap-3 pt-4">
-                  <Button
-                    onClick={() => handleDownload(selectedInvoice)}
-                    className="flex-1 bg-emerald-600 hover:bg-emerald-700"
-                  >
-                    <Download className="w-4 h-4 mr-2" />
-                    Download PDF
+                {/* Dialog Actions */}
+                <div className="flex gap-3 pt-4 flex-wrap">
+                  <Button onClick={() => handleDownload(selectedInvoice)} className="flex-1 bg-emerald-600 hover:bg-emerald-700">
+                    <Download className="w-4 h-4 mr-2" /> Download PDF
+                  </Button>
+                  <Button variant="outline" onClick={() => handleSendToClient(selectedInvoice)} className="flex-1 border-blue-500 text-blue-600 hover:bg-blue-50" disabled={sendingEmail}>
+                    <Send className="w-4 h-4 mr-2" /> Send to Client
                   </Button>
                   {selectedInvoice.status !== 'paid' && (
-                    <Button
-                      variant="outline"
-                      onClick={() => handleMarkAsPaid(selectedInvoice.id)}
-                      className="flex-1 border-emerald-600 text-emerald-600"
-                    >
-                      <CheckCircle className="w-4 h-4 mr-2" />
-                      Mark as Paid
+                    <Button variant="outline" onClick={() => handleMarkAsPaid(selectedInvoice.id)} className="flex-1 border-emerald-600 text-emerald-600">
+                      <CheckCircle className="w-4 h-4 mr-2" /> Mark as Paid
                     </Button>
                   )}
                 </div>
