@@ -50,7 +50,7 @@ export interface BusinessInfo {
 }
 
 
-export type View = 'landing' | 'auth' | 'dashboard' | 'invoices' | 'create-invoice' | 'customers' | 'settings';
+export type View = 'landing' | 'auth' | 'dashboard' | 'invoices' | 'create-invoice' | 'customers' | 'settings' | 'upgrade';
 
 export interface DashboardStats {
   totalInvoices: number;

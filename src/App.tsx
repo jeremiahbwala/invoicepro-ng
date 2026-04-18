@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
-import type { Invoice, Customer, BusinessInfo } from "@/types";
+import type { Invoice, Customer, BusinessInfo, View } from "@/types";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useState } from "react";
 
@@ -8,6 +8,7 @@ import Auth from "@/pages/Auth";
 import About from "@/pages/About";
 import Contact from "@/pages/Contact";
 import Feedback from "@/pages/Feedback";
+import Upgrade from '@/pages/Upgrade';
 
 import { Dashboard } from "@/sections/Dashboard";
 import { InvoiceList } from "@/sections/InvoiceList";
@@ -87,6 +88,7 @@ function App() {
           businessName={businessInfo.name}
           onSettings={() => navigate("/settings")}
           onLogout={handleLogout}
+          onUpgrade={() => navigate('/upgrade')}
         />
       )}
 
@@ -191,7 +193,23 @@ function App() {
             }
           />
 
+        <Route
+          path="/upgrade"
+          element={
+            isLoggedIn ? (
+              <Upgrade
+                onBack={() => navigate('/dashboard')}
+                onProceedToPayment={(plan) => {
+                  console.log('Proceeding to payment:', plan);
+                }}
+              />
+            ) : (
+              <Navigate to="/" />
+            )
+          }
+        />
         </Routes>
+
       </main>
 
       {/* Install Button */}
@@ -209,7 +227,7 @@ function App() {
       {/* Bottom Nav */}
       {isLoggedIn && !publicPaths.includes(location.pathname) && (
         <BottomNav
-          currentView={"dashboard"} 
+          currentView={location.pathname.replace('/', '') as View || 'dashboard'}
           onNavigate={(view) => navigate(`/${view}`)}
         />
       )}

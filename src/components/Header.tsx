@@ -1,13 +1,15 @@
-import { Settings, Receipt, LogOut } from 'lucide-react';
+import { Settings, Receipt, LogOut, Zap, Crown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface HeaderProps {
   businessName: string;
   onSettings: () => void;
   onLogout: () => void;
+  onUpgrade: () => void;
+  isPro?: boolean;
 }
 
-export function Header({ businessName, onSettings, onLogout }: HeaderProps) {
+export function Header({ businessName, onSettings, onLogout, onUpgrade, isPro = false }: HeaderProps) {
   return (
     <header className="sticky top-0 z-50 bg-white border-b shadow-sm">
       <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
@@ -20,6 +22,21 @@ export function Header({ businessName, onSettings, onLogout }: HeaderProps) {
             <p className="text-xs text-gray-500 truncate max-w-[120px]">{businessName}</p>
           </div>
         </div>
+        {!isPro && (
+        <button
+          onClick={onUpgrade}
+          className="hidden md:flex items-center gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
+        >
+          <Zap className="w-3.5 h-3.5" />
+            Upgrade to Pro
+          </button>
+        )}
+        {isPro && (
+          <span className="hidden md:flex items-center gap-1.5 bg-emerald-50 text-emerald-700 text-xs font-semibold px-3 py-1.5 rounded-lg">
+            <Crown className="w-3.5 h-3.5" />
+            Pro
+          </span>
+        )}
         <Button
           variant="ghost"
           size="icon"
